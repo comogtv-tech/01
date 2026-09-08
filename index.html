@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SiamBus Express | ระบบค้นหารอบรถและจองคิวเดินทางออนไลน์</title>
+  <meta name="description" content="ระบบจองตั๋วรถทัวร์และจองคิวเดินทางออนไลน์ ผังที่นั่งแบบเรียลไทม์ และบัตรคิวดิจิทัล QR Code สำหรับผู้โดยสาร">
+  <!-- Google Fonts: Prompt & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/seatmap.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">🚍</div>
+        <div class="logo-text">Siam<span>Bus</span> Express</div>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link active">🏠 หน้าหลัก</a></li>
+        <li><button type="button" class="nav-link" onclick="openLookupModal()" style="background: none; border: none; cursor: pointer; font-family: inherit;">🔍 ตรวจสอบตั๋ว / คิว</button></li>
+        <li><a href="admin.html" class="nav-link nav-badge-btn">🛠️ แดชบอร์ดนายท่า</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Header Section -->
+  <header class="hero-section">
+    <div class="hero-content">
+      <div class="hero-pill">
+        <span>✨</span> ระบบจองรอบรถและรับบัตรคิวดิจิทัลมาตรฐานใหม่
+      </div>
+      <h1 class="hero-title">เดินทางทั่วไทย สะดวก รวดเร็ว <span>เลือกที่นั่งได้ทันที</span></h1>
+      <p class="hero-subtitle">ค้นหารอบรถบัส VIP และ Standard ทั่วประเทศ พร้อมระบบจัดคิวและ E-Ticket ผ่าน QR Code</p>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- Step Progress Wizard -->
+    <div class="wizard-progress">
+      <div class="wizard-step active" id="stepIndicator1">
+        <div class="step-circle">1</div>
+        <div class="step-info">
+          <span class="step-num">ขั้นตอน 1</span>
+          <span class="step-title">ค้นหาและเลือกรอบรถ</span>
+        </div>
+      </div>
+      <div class="wizard-divider"></div>
+      <div class="wizard-step" id="stepIndicator2">
+        <div class="step-circle">2</div>
+        <div class="step-info">
+          <span class="step-num">ขั้นตอน 2</span>
+          <span class="step-title">เลือกผังที่นั่ง</span>
+        </div>
+      </div>
+      <div class="wizard-divider"></div>
+      <div class="wizard-step" id="stepIndicator3">
+        <div class="step-circle">3</div>
+        <div class="step-info">
+          <span class="step-num">ขั้นตอน 3</span>
+          <span class="step-title">ข้อมูลผู้โดยสาร</span>
+        </div>
+      </div>
+      <div class="wizard-divider"></div>
+      <div class="wizard-step" id="stepIndicator4">
+        <div class="step-circle">4</div>
+        <div class="step-info">
+          <span class="step-num">ขั้นตอน 4</span>
+          <span class="step-title">ชำระเงิน & รับบัตรคิว</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STEP 1: SEARCH WIDGET & SCHEDULE LIST
+         ==================================================================== -->
+    <div id="step1View">
+      <div class="card search-card">
+        <form id="searchForm">
+          <div class="search-grid">
+            <div class="form-group">
+              <label class="form-label" for="originSelect">🚩 สถานีต้นทาง</label>
+              <select id="originSelect" class="form-select" required></select>
+            </div>
+
+            <div class="swap-btn-container">
+              <button type="button" class="swap-btn" id="swapStationBtn" title="สลับต้นทาง-ปลายทาง">⇄</button>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="destSelect">🏁 สถานีปลายทาง</label>
+              <select id="destSelect" class="form-select" required></select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="travelDateInput">📅 วันที่เดินทาง</label>
+              <input type="date" id="travelDateInput" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="passengersInput">👥 จำนวนผู้โดยสาร</label>
+              <select id="passengersInput" class="form-select">
+                <option value="1">1 ท่าน</option>
+                <option value="2">2 ท่าน</option>
+                <option value="3">3 ท่าน</option>
+                <option value="4">4 ท่าน</option>
+                <option value="5">5 ท่าน</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block" style="height: 48px;">
+                🔍 ค้นหาเที่ยวรถ
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Quick Routes -->
+        <div class="quick-routes">
+          <span>⚡ เส้นทางยอดนิยม:</span>
+          <button type="button" class="quick-chip" data-from="BKK_MOH" data-to="CNX_ARC">กรุงเทพฯ - เชียงใหม่</button>
+          <button type="button" class="quick-chip" data-from="BKK_SAI" data-to="HKT_TRM">กรุงเทพฯ - ภูเก็ต</button>
+          <button type="button" class="quick-chip" data-from="BKK_EKK" data-to="PTY_NRM">เอกมัย - พัทยา</button>
+          <button type="button" class="quick-chip" data-from="BKK_MOH" data-to="KKC_TRM">กรุงเทพฯ - ขอนแก่น</button>
+          <button type="button" class="quick-chip" data-from="BKK_SAI" data-to="HDY_TRM">กรุงเทพฯ - หาดใหญ่</button>
+        </div>
+      </div>
+
+      <!-- Schedule Results List -->
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🕒 ตารางรอบรถที่เปิดให้จอง</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem;" id="scheduleCountBadge">กำลังโหลดเที่ยวรถ...</p>
+        </div>
+        <div class="filter-bar">
+          <button type="button" class="filter-chip active" data-class="ALL">ทุกประเภทรถ</button>
+          <button type="button" class="filter-chip" data-class="VIP24">👑 VIP 24 ที่นั่ง</button>
+          <button type="button" class="filter-chip" data-class="DOUBLE_DECK">🚌 2 ชั้น VIP</button>
+          <button type="button" class="filter-chip" data-class="FIRST32">⭐ First Class 32</button>
+          <button type="button" class="filter-chip" data-class="EXPRESS40">⚡ Standard</button>
+        </div>
+      </div>
+
+      <div class="schedule-list" id="scheduleListContainer"></div>
+    </div>
+
+    <!-- ====================================================================
+         STEP 2: BUS SEAT MAP SELECTION
+         ==================================================================== -->
+    <div id="step2View" style="display: none;">
+      <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <span style="font-size: 0.8rem; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px;">เที่ยวรถที่เลือก</span>
+            <h2 id="selectedTripTitle" style="font-size: 1.4rem; font-weight: 800; margin-top: 4px;">กรุงเทพฯ ➔ เชียงใหม่</h2>
+            <p id="selectedTripMeta" style="color: #cbd5e1; font-size: 0.9rem;"></p>
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="goToStep(1)" style="background: white; color: var(--primary);">
+            ← เปลี่ยนเที่ยวรถ
+          </button>
+        </div>
+      </div>
+
+      <div class="booking-layout">
+        <!-- Interactive Bus Canvas / Seat Map -->
+        <div class="card">
+          <h3 class="form-section-title">💺 เลือกที่นั่งบนรถบัส (คลิกที่นั่งที่ต้องการ)</h3>
+          <div id="seatMapContainer"></div>
+        </div>
+
+        <!-- Seat Selection Summary Sidebar -->
+        <div class="summary-sidebar">
+          <h3 class="summary-title">📋 สรุปการเลือกที่นั่ง</h3>
+          <div class="summary-route-box">
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">ที่นั่งที่เลือก (<span id="selectedSeatsCount">0</span> ที่นั่ง):</div>
+            <div id="selectedSeatsList" style="min-height: 40px; display: flex; flex-wrap: wrap;">
+              <span style="color: var(--text-muted); font-size: 0.85rem;">ยังไม่ได้เลือกที่นั่ง</span>
+            </div>
+          </div>
+
+          <div class="summary-row">
+            <span>ราคารวมที่นั่ง:</span>
+            <span id="selectedSeatsTotalPrice" style="font-weight: 800; color: var(--secondary); font-size: 1.25rem;">฿0</span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.25rem;">* สามารถเลือกได้สูงสุด 5 ที่นั่งต่อครั้ง</p>
+
+          <button type="button" id="proceedToPassengerBtn" class="btn btn-primary btn-block btn-lg" onclick="proceedToPassengerDetails()" disabled>
+            ต่อไป: กรอกข้อมูลผู้โดยสาร ➔
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STEP 3: PASSENGER INFORMATION & ADD-ONS
+         ==================================================================== -->
+    <div id="step3View" style="display: none;">
+      <div class="booking-layout">
+        <div>
+          <!-- Main Contact Info -->
+          <div class="form-section-card">
+            <h3 class="form-section-title">👤 ข้อมูลผู้ติดต่อหลัก (สำหรับรับ SMS & E-Ticket)</h3>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="mainContactName">ชื่อ-นามสกุล *</label>
+                <input type="text" id="mainContactName" class="form-control" placeholder="เช่น นายสมชาย เดินทางดี" value="สมชาย เดินทางดี" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="mainContactPhone">เบอร์โทรศัพท์มือถือ *</label>
+                <input type="tel" id="mainContactPhone" class="form-control" placeholder="เช่น 081-234-5678" value="081-234-5678" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="mainContactEmail">อีเมล (Email)</label>
+                <input type="email" id="mainContactEmail" class="form-control" placeholder="เช่น somchai@email.com" value="somchai@email.com">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="mainContactId">เลขบัตรประชาชน / Passport</label>
+                <input type="text" id="mainContactId" class="form-control" placeholder="1-1002-XXXXX-XX-X" value="1-1002-00345-67-1">
+              </div>
+            </div>
+          </div>
+
+          <!-- Pickup & Dropoff Stations -->
+          <div class="form-section-card">
+            <h3 class="form-section-title">📍 จุดขึ้นรถและจุดลงรถ</h3>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">จุดขึ้นรถ (Boarding Point)</label>
+                <input type="text" id="boardingStationInput" class="form-control">
+              </div>
+              <div class="form-group">
+                <label class="form-label">จุดลงรถ (Drop-off Point)</label>
+                <input type="text" id="dropoffStationInput" class="form-control">
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Passengers according to selected seats -->
+          <div class="form-section-card">
+            <h3 class="form-section-title">👥 รายชื่อผู้โดยสารตามที่นั่ง</h3>
+            <div id="passengerInputsContainer"></div>
+          </div>
+
+          <!-- Travel Add-ons -->
+          <div class="form-section-card">
+            <h3 class="form-section-title">🛡️ บริการเสริมการเดินทาง (Add-ons)</h3>
+            <div class="addons-grid">
+              <div class="addon-card selected" id="addonInsuranceCard" onclick="toggleAddon('insurance')">
+                <div style="font-size: 1.5rem;">🛡️</div>
+                <div class="addon-info">
+                  <h4>ประกันภัยอุบัติเหตุเดินทาง</h4>
+                  <p>คุ้มครองวงเงินสูงสุด 500,000 บาท ตลอดการเดินทาง</p>
+                  <div class="addon-price">+฿30 / ที่นั่ง</div>
+                </div>
+              </div>
+
+              <div class="addon-card" id="addonLuggageCard" onclick="toggleAddon('luggage')">
+                <div style="font-size: 1.5rem;">🧳</div>
+                <div class="addon-info">
+                  <h4>เพิ่มน้ำหนักสัมภาระ (+15 kg)</h4>
+                  <p>สำหรับกระเป๋าใบใหญ่พิเศษหรือสัมภาระเพิ่มเติม</p>
+                  <div class="addon-price">+฿100 / ชิ้น</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(2)">
+              ← ย้อนกลับไปเลือกที่นั่ง
+            </button>
+            <button type="button" class="btn btn-primary btn-lg" onclick="proceedToConfirmation()">
+              ต่อไป: ตรวจสอบและชำระเงิน ➔
+            </button>
+          </div>
+        </div>
+
+        <!-- Sidebar Summary -->
+        <div class="summary-sidebar">
+          <h3 class="summary-title">🧾 สรุปค่าโดยสาร</h3>
+          <div class="summary-row">
+            <span>ค่าที่นั่งโดยสาร:</span>
+            <span id="summarySeatsPrice">฿0</span>
+          </div>
+          <div class="summary-row" style="font-size: 0.8rem; color: var(--text-muted);">
+            <span id="summarySeatsCount">-</span>
+            <span></span>
+          </div>
+          <div class="summary-row">
+            <span>ประกันการเดินทาง:</span>
+            <span id="summaryInsurancePrice">฿0</span>
+          </div>
+          <div class="summary-row">
+            <span>สัมภาระเพิ่มเติม:</span>
+            <span id="summaryLuggagePrice">฿0</span>
+          </div>
+          <div class="summary-row total">
+            <span>ยอดชำระสุทธิ:</span>
+            <span id="summaryGrandTotal">฿0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STEP 4: SUMMARY & PAYMENT SIMULATOR
+         ==================================================================== -->
+    <div id="step4View" style="display: none;">
+      <div class="booking-layout">
+        <div>
+          <!-- Booking Review -->
+          <div class="form-section-card">
+            <h3 class="form-section-title">🔍 ตรวจสอบข้อมูลการเดินทางก่อนยืนยัน</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.95rem;">
+              <div class="summary-row">
+                <strong style="color: var(--text-muted);">เส้นทาง:</strong>
+                <span id="confirmRoute" style="font-weight: 700; color: var(--primary);"></span>
+              </div>
+              <div class="summary-row">
+                <strong style="color: var(--text-muted);">วันและเวลารถออก:</strong>
+                <span id="confirmDateTime" style="font-weight: 700;"></span>
+              </div>
+              <div class="summary-row">
+                <strong style="color: var(--text-muted);">ผู้ให้บริการ / รถ:</strong>
+                <span id="confirmOperator"></span>
+              </div>
+              <div class="summary-row">
+                <strong style="color: var(--text-muted);">ที่นั่งที่จอง:</strong>
+                <span id="confirmSeats" style="font-weight: 700; color: var(--secondary);"></span>
+              </div>
+              <div class="summary-row">
+                <strong style="color: var(--text-muted);">ผู้ติดต่อหลัก:</strong>
+                <span id="confirmContact"></span>
+              </div>
+              <div class="summary-row">
+                <strong style="color: var(--text-muted);">จุดขึ้นรถ:</strong>
+                <span id="confirmPickup"></span>
+              </div>
+              <div class="summary-row">
+                <strong style="color: var(--text-muted);">จุดส่งปลายทาง:</strong>
+                <span id="confirmDropoff"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Methods Simulator -->
+          <div class="form-section-card">
+            <h3 class="form-section-title">💳 ช่องทางการชำระเงิน</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+              <div class="addon-card selected payment-method-card" onclick="selectPaymentMethod('PromptPay QR', this)">
+                <div style="font-size: 1.5rem;">📱</div>
+                <div>
+                  <h4 style="font-size: 0.95rem;">PromptPay QR</h4>
+                  <p style="font-size: 0.75rem;">สแกนจ่ายทันทีทุกธนาคาร</p>
+                </div>
+              </div>
+
+              <div class="addon-card payment-method-card" onclick="selectPaymentMethod('Credit/Debit Card', this)">
+                <div style="font-size: 1.5rem;">💳</div>
+                <div>
+                  <h4 style="font-size: 0.95rem;">บัตรเครดิต/เดบิต</h4>
+                  <p style="font-size: 0.75rem;">Visa, Mastercard, JCB</p>
+                </div>
+              </div>
+
+              <div class="addon-card payment-method-card" onclick="selectPaymentMethod('TrueMoney / 7-Eleven', this)">
+                <div style="font-size: 1.5rem;">🏪</div>
+                <div>
+                  <h4 style="font-size: 0.95rem;">เคาน์เตอร์เซอร์วิส</h4>
+                  <p style="font-size: 0.75rem;">7-Eleven / TrueMoney</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: var(--radius-md); padding: 1.5rem; text-align: center;">
+              <div style="font-weight: 700; margin-bottom: 0.5rem;">ระบบจำลองการชำระเงินอัตโนมัติ (Simulation Mode)</div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">เมื่อกดยืนยัน ระบบจะจำลองการชำระเงินสำเร็จ และสร้างบัตรคิว E-Ticket พร้อม QR Code ทันที</p>
+              <div style="font-size: 1.6rem; font-weight: 800; color: var(--secondary);" id="confirmPayTotal">฿0</div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(3)">
+              ← ย้อนกลับไปแก้ไขข้อมูล
+            </button>
+            <button type="button" class="btn btn-accent btn-lg" onclick="completeBooking()">
+              ⚡ ยืนยันชำระเงิน & ออกตั๋วบัตรคิว ➔
+            </button>
+          </div>
+        </div>
+
+        <!-- Sidebar Summary -->
+        <div class="summary-sidebar">
+          <h3 class="summary-title">🛡️ ความปลอดภัยและความคุ้มครอง</h3>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem; color: var(--text-muted);">
+            <li>✓ ตั๋วดิจิทัล QR Code ตรวจสอบสถานะได้แบบเรียลไทม์</li>
+            <li>✓ มีระบบแจ้งเตือนและเรียกคิวขึ้นรถที่ชานชาลา</li>
+            <li>✓ รถบัสผ่านการตรวจมาตรฐานความปลอดภัยกรมการขนส่ง</li>
+            <li>✓ ศูนย์บริการช่วยเหลือ 24 ชั่วโมง โทร 1690</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ====================================================================
+       MODAL: LOOKUP BOOKINGS / QUEUE STATUS
+       ==================================================================== -->
+  <div class="modal-overlay" id="lookupModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🔍 ตรวจสอบตั๋วเดินทางและสถานะคิว</h3>
+        <button type="button" class="modal-close" onclick="closeLookupModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="lookupSearchInput">ค้นหาด้วยรหัสการจอง หรือเบอร์โทรศัพท์</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="lookupSearchInput" class="form-control" placeholder="เช่น BUS-2026-8801 หรือ 081-234-5678">
+            <button type="button" class="btn btn-primary" onclick="searchExistingBookings()">ค้นหา</button>
+          </div>
+        </div>
+
+        <div id="lookupResultsContainer">
+          <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 1rem 0;">
+            กรอกรหัสการจองหรือเบอร์โทรศัพท์ที่ใช้จองเพื่อดูตั๋วและหมายเลขคิว
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeLookupModal()">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/seatmap.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

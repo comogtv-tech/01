@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แดชบอร์ดจัดการรอบรถและตรวจคิว | SiamBus Station Master</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background-color: #f1f5f9;">
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">🚍</div>
+        <div class="logo-text">Siam<span>Bus</span> Master</div>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">🌐 หน้าจองตั๋วผู้โดยสาร</a></li>
+        <li><button type="button" class="btn btn-primary" onclick="openScannerModal()" style="padding: 0.45rem 1rem; font-size: 0.85rem;">📷 สแกน QR เช็คอิน</button></li>
+        <li><button type="button" class="btn btn-secondary" onclick="resetAllDataToDefault()" style="padding: 0.45rem 0.85rem; font-size: 0.85rem;">🔄 รีเซ็ตข้อมูล</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Live Queue Announcement Banner (Triggered when calling queue) -->
+  <div id="queueLiveAnnouncementBanner" style="display: none; background: linear-gradient(90deg, #ea580c 0%, #f97316 100%); color: white; padding: 1rem 1.5rem; box-shadow: var(--shadow-md); position: sticky; top: 65px; z-index: 90;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="font-size: 1.8rem; animation: pulse 1s infinite;">📢</div>
+        <div>
+          <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9;">กำลังประกาศเรียกคิวขึ้นรถ (Live Boarding Call)</div>
+          <div style="font-size: 1.25rem; font-weight: 800;">
+            หมายเลขคิว <span id="announcedQueueNo" style="background: white; color: #c2410c; padding: 2px 10px; border-radius: 6px; font-size: 1.35rem;">-</span> :
+            คุณ <span id="announcedPassengerName">-</span> เชิญที่ <span id="announcedPlatform">-</span>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-secondary" onclick="dismissQueueAnnouncement()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 0.4rem 1rem;">
+        ปิดการแจ้งเตือน ✕
+      </button>
+    </div>
+  </div>
+
+  <main class="main-container" style="margin-top: 1.5rem;">
+
+    <!-- Analytics Dashboard Stats -->
+    <div class="admin-stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">📋</div>
+        <div class="stat-content">
+          <h3 id="statTotalBookings">0</h3>
+          <p>ยอดการจองตั๋วรวม</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon orange">💰</div>
+        <div class="stat-content">
+          <h3 id="statTotalRevenue">฿0</h3>
+          <p>รายได้รวมจากการขายตั๋ว</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-content">
+          <h3 id="statCheckedIn">0 / 0</h3>
+          <p>เช็คอิน / ผู้โดยสารทั้งหมด</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon purple">🚍</div>
+        <div class="stat-content">
+          <h3 id="statActiveBuses">0 คัน</h3>
+          <p>รถที่เปิดให้บริการวันนี้</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Bus Schedules & Route Management -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🚍 จัดการรอบรถและสถานะเที่ยวเดินทาง (Bus Schedules)</h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">ควบคุมการเรียกขึ้นรถ (Boarding Call) กำหนดเวลา และปรับสถานะเที่ยวรถ</p>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="openAddScheduleModal()">
+          ➕ เพิ่มรอบรถใหม่
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>รหัส / สาย</th>
+              <th>ผู้ให้บริการ / รถ</th>
+              <th>เส้นทาง (ต้นทาง-ปลายทาง)</th>
+              <th>เวลาออก / ชานชาลา</th>
+              <th>จำนวนที่นั่ง</th>
+              <th>ราคาต่อที่นั่ง</th>
+              <th>สถานะเที่ยวรถ</th>
+              <th>การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="schedulesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 2: Real-Time Passenger Manifest & Check-in Queue -->
+    <div class="card">
+      <div class="section-header" style="flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 class="section-title">👥 บัญชีรายชื่อผู้โดยสารและคิวเช็คอิน (Passenger Manifest)</h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">ตรวจสอบตั๋ว เรียกคิว และเช็คอินผู้โดยสารขึ้นรถ</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <select id="manifestTripFilter" class="form-select" style="width: 250px; font-size: 0.85rem;"></select>
+          <input type="text" id="manifestSearchInput" class="form-control" placeholder="🔍 ค้นชื่อ / เบอร์ / คิว..." style="width: 200px; font-size: 0.85rem;">
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>คิว (Queue)</th>
+              <th>รหัสจอง / วันที่</th>
+              <th>ชื่อผู้โดยสาร / เบอร์ติดต่อ</th>
+              <th>ที่นั่ง</th>
+              <th>เที่ยวรถ / จุดขึ้น</th>
+              <th>ยอดชำระ</th>
+              <th>สถานะเช็คอิน</th>
+              <th>การกระทำ</th>
+            </tr>
+          </thead>
+          <tbody id="manifestTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ====================================================================
+       MODAL: ADD NEW SCHEDULE
+       ==================================================================== -->
+  <div class="modal-overlay" id="addScheduleModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>➕ เพิ่มรอบรถใหม่ในระบบ</h3>
+        <button type="button" class="modal-close" onclick="closeAddScheduleModal()">×</button>
+      </div>
+      <form onsubmit="submitNewScheduleForm(event)">
+        <div class="modal-body">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">หมายเลขสาย (Route Number) *</label>
+              <input type="text" id="newTripRoute" class="form-control" placeholder="เช่น 91-SPECIAL" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ชื่อผู้ให้บริการ / บริษัท *</label>
+              <input type="text" id="newTripOperator" class="form-control" placeholder="เช่น สยามเอ็กซ์เพรส พรีเมียม" value="สยามเอ็กซ์เพรส พรีเมียม" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">ประเภทรถโดยสาร *</label>
+              <select id="newTripBusClass" class="form-select">
+                <option value="VIP24">VIP Super First Class (24 ที่นั่ง)</option>
+                <option value="DOUBLE_DECK">Double Decker VIP (42 ที่นั่ง)</option>
+                <option value="FIRST32">First Class Special (32 ที่นั่ง)</option>
+                <option value="EXPRESS40">Standard Express (40 ที่นั่ง)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ทะเบียนรถ *</label>
+              <input type="text" id="newTripPlate" class="form-control" placeholder="เช่น 15-9988 กทม." required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">สถานีต้นทาง *</label>
+              <select id="newTripOrigin" class="form-select" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">สถานีปลายทาง *</label>
+              <select id="newTripDest" class="form-select" required></select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">เวลาออกเดินทาง *</label>
+              <input type="time" id="newTripDepTime" class="form-control" value="09:30" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">เวลาถึงปลายทาง *</label>
+              <input type="time" id="newTripArrTime" class="form-control" value="18:45" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">ระยะเวลาเดินทาง</label>
+              <input type="text" id="newTripDuration" class="form-control" value="9 ชม. 15 นาที">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ราคาต่อที่นั่ง (บาท) *</label>
+              <input type="number" id="newTripPrice" class="form-control" value="850" min="50" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">ชานชาลา (Platform)</label>
+              <input type="text" id="newTripPlatform" class="form-control" value="ชานชาลา 16">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ประตูขึ้นรถ (Gate)</label>
+              <input type="text" id="newTripGate" class="form-control" value="Gate 3">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeAddScheduleModal()">ยกเลิก</button>
+          <button type="submit" class="btn btn-primary">บันทึกรอบรถใหม่</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL: QR CODE SCANNER SIMULATOR
+       ==================================================================== -->
+  <div class="modal-overlay" id="scannerModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📷 เครื่องสแกน QR Code ตรวจตั๋วและเช็คอิน</h3>
+        <button type="button" class="modal-close" onclick="closeScannerModal()">×</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <div style="width: 240px; height: 240px; border: 3px dashed var(--primary); border-radius: var(--radius-lg); margin: 1rem auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; position: relative; overflow: hidden;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">📱</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">นำ QR Code บนตั๋วมาจ่อหน้ากล้อง</div>
+          <!-- Animated scanning laser line -->
+          <div style="position: absolute; left: 0; right: 0; height: 3px; background: #ef4444; box-shadow: 0 0 8px #ef4444; animation: scanLaser 2s infinite ease-in-out;"></div>
+        </div>
+        <style>
+          @keyframes scanLaser {
+            0% { top: 10%; }
+            50% { top: 90%; }
+            100% { top: 10%; }
+          }
+        </style>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+          จำลองการตรวจตั๋วและเช็คอินผู้โดยสารที่ยังรอเช็คอิน
+        </p>
+        <button type="button" class="btn btn-primary btn-lg" onclick="simulateScanQrCode()">
+          ⚡ จำลองการสแกนตั๋วสำเร็จ
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeScannerModal()">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

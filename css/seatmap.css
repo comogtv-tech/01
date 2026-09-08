@@ -1,0 +1,321 @@
+/* ==========================================================================
+   BUS SEAT MAP STYLESHEET
+   Realistic Interactive Bus Interior Simulation & Seat Selector
+   ========================================================================== */
+
+.seatmap-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.deck-switcher {
+  display: flex;
+  background: #e2e8f0;
+  padding: 4px;
+  border-radius: var(--radius-full);
+  gap: 4px;
+}
+
+.deck-btn {
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-full);
+  border: none;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.deck-btn.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Bus Frame / Chassis */
+.bus-chassis {
+  background: #f8fafc;
+  border: 3px solid #cbd5e1;
+  border-radius: 40px 40px 24px 24px;
+  padding: 2rem 1.75rem 2rem;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+/* Windshield & Cabin Front */
+.bus-windshield {
+  height: 28px;
+  background: linear-gradient(180deg, #93c5fd 0%, #dbeafe 100%);
+  border-radius: 20px 20px 6px 6px;
+  border: 2px solid #60a5fa;
+  margin-bottom: 1.25rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #1e40af;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.bus-windshield::before {
+  content: 'กระจกหน้ารถ (FRONT)';
+}
+
+.bus-front-cabin {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0.5rem 1rem;
+  border-bottom: 2px dashed #e2e8f0;
+  margin-bottom: 1.25rem;
+}
+
+.driver-seat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.driver-steering {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #475569;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.driver-steering::after {
+  content: '';
+  width: 16px;
+  height: 4px;
+  background: #475569;
+}
+
+.driver-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.bus-door {
+  background: #e2e8f0;
+  border: 1.5px solid #94a3b8;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Seat Rows Grid */
+.bus-seats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.seat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.seat-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.bus-aisle {
+  flex: 1;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+/* Individual Seat Styling */
+.seat-btn {
+  width: 46px;
+  height: 50px;
+  border-radius: 10px 10px 6px 6px;
+  border: 2px solid #cbd5e1;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 2px 3px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Headrest Cushion */
+.seat-btn::before {
+  content: '';
+  width: 65%;
+  height: 6px;
+  background: #cbd5e1;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.seat-number {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.seat-type-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+/* Seat States */
+.seat-btn:hover:not(.booked):not(.disabled) {
+  border-color: var(--primary);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.2);
+}
+
+.seat-btn.selected {
+  background: linear-gradient(135deg, var(--secondary) 0%, #ea580c 100%) !important;
+  border-color: #c2410c !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.35);
+}
+
+.seat-btn.selected::before {
+  background: #fed7aa;
+}
+
+.seat-btn.selected .seat-number {
+  color: white;
+}
+
+.seat-btn.booked {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.seat-btn.booked::before {
+  background: #94a3b8;
+}
+
+.seat-btn.booked .seat-number {
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+.seat-btn.female-priority {
+  border-color: #f472b6;
+  background: #fdf2f8;
+}
+
+.seat-btn.female-priority::before {
+  background: #f472b6;
+}
+
+.seat-btn.female-priority .seat-type-dot {
+  background: #ec4899;
+}
+
+/* Special bus items: stairs, restroom */
+.bus-facility-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  margin: 0.25rem 0;
+}
+
+.facility-badge {
+  background: #e2e8f0;
+  border: 1.5px solid #cbd5e1;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Seat Legend */
+.seat-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  max-width: 480px;
+  width: 100%;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.legend-sample {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1.5px solid;
+}
+
+.legend-sample.available {
+  background: white;
+  border-color: #cbd5e1;
+}
+
+.legend-sample.selected {
+  background: var(--secondary);
+  border-color: #c2410c;
+}
+
+.legend-sample.booked {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.legend-sample.female {
+  background: #fdf2f8;
+  border-color: #f472b6;
+}
