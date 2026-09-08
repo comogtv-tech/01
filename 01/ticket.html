@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>บัตรคิวและตั๋วเดินทางดิจิทัล | SiamBus Express E-Ticket</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    @media print {
+      body { background: white !important; }
+      .navbar, .ticket-actions-bar, .countdown-box { display: none !important; }
+      .ticket-wrapper { margin: 0 !important; max-width: 100% !important; box-shadow: none !important; }
+      .boarding-pass { border: 1px solid #000 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">🚍</div>
+        <div class="logo-text">Siam<span>Bus</span> Express</div>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">🏠 กลับหน้าหลัก</a></li>
+        <li><a href="admin.html" class="nav-link nav-badge-btn">🛠️ แดชบอร์ดนายท่า</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="main-container" id="ticketMainContainer">
+    <div class="ticket-wrapper">
+
+      <!-- Action Buttons Bar -->
+      <div class="ticket-actions-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <a href="index.html" class="btn btn-secondary">
+          ← จองเที่ยวรถอื่น
+        </a>
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="button" class="btn btn-primary" onclick="printTicket()">
+            🖨️ พิมพ์ / บันทึกตั๋ว (Print PDF)
+          </button>
+        </div>
+      </div>
+
+      <!-- Boarding Pass Card -->
+      <div class="boarding-pass">
+        <!-- Header -->
+        <div class="ticket-header">
+          <div class="ticket-brand">
+            <div class="logo-icon" style="background: rgba(255,255,255,0.2);">🚍</div>
+            <div>
+              <h2 id="ticketOperator">สยามเอ็กซ์เพรส พรีเมียม</h2>
+              <p style="font-size: 0.85rem; color: #cbd5e1;" id="ticketRouteNumber">สาย 91-VIP กรุงเทพฯ - เชียงใหม่</p>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="ticket-badge-live" id="ticketLiveBadge">บัตรโดยสารอิเล็กทรอนิกส์ (E-TICKET)</div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">รหัส: <strong id="ticketBookingId">BUS-2026-8801</strong></div>
+          </div>
+        </div>
+
+        <!-- Queue Number Highlight Banner -->
+        <div class="queue-highlight-banner">
+          <div class="queue-number-box">
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 700; color: #c2410c; text-transform: uppercase;">หมายเลขคิวเดินทาง (Queue No.)</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted);">ใช้สำหรับแสดงตัวและรอเรียกขึ้นรถที่ชานชาลา</div>
+            </div>
+          </div>
+          <div class="queue-big-pill" id="ticketQueueNum">Q-042</div>
+        </div>
+
+        <!-- Ticket Body -->
+        <div class="ticket-body">
+          <!-- Route Timeline -->
+          <div class="trip-timeline" style="margin-bottom: 2rem; background: #f8fafc; padding: 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="time-point">
+              <div class="time" id="ticketDepTime" style="color: var(--primary);">08:30 น.</div>
+              <div class="station-name" id="ticketOriginName" style="font-weight: 700;">กรุงเทพฯ (หมอชิต 2)</div>
+            </div>
+            <div class="time-middle">
+              <span class="duration-pill" id="ticketDuration">⏱️ 9 ชม. 15 นาที</span>
+              <div class="route-line">
+                <span class="route-line-icon">➔</span>
+              </div>
+              <span style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;" id="ticketBusClass">VIP Super First Class</span>
+            </div>
+            <div class="time-point">
+              <div class="time" id="ticketArrTime" style="color: var(--primary);">17:45 น.</div>
+              <div class="station-name" id="ticketDestName" style="font-weight: 700;">เชียงใหม่ (อาเขต 3)</div>
+            </div>
+          </div>
+
+          <!-- Trip Info Grid -->
+          <div class="ticket-grid-3">
+            <div class="ticket-field">
+              <label>📅 วันที่เดินทาง</label>
+              <span id="ticketTravelDate">-</span>
+            </div>
+            <div class="ticket-field">
+              <label>💺 ที่นั่ง (Seat Numbers)</label>
+              <span id="ticketSeats" style="color: var(--secondary); font-size: 1.25rem;">-</span>
+            </div>
+            <div class="ticket-field">
+              <label>🚪 ชานชาลา / ประตูขึ้นรถ</label>
+              <span id="ticketPlatformGate">-</span>
+            </div>
+
+            <div class="ticket-field">
+              <label>👤 ผู้โดยสารหลัก</label>
+              <span id="ticketPassengerName">-</span>
+            </div>
+            <div class="ticket-field">
+              <label>📞 เบอร์โทรศัพท์</label>
+              <span id="ticketPassengerPhone">-</span>
+            </div>
+            <div class="ticket-field">
+              <label>🚍 ทะเบียนรถโดยสาร</label>
+              <span id="ticketPlateNumber">-</span>
+            </div>
+
+            <div class="ticket-field" style="grid-column: span 2;">
+              <label>📍 จุดรับขึ้นรถ (Boarding Station)</label>
+              <span id="ticketPickupLocation" style="font-size: 0.95rem;">-</span>
+            </div>
+            <div class="ticket-field">
+              <label>📍 จุดส่งปลายทาง (Drop-off)</label>
+              <span id="ticketDropoffLocation" style="font-size: 0.95rem;">-</span>
+            </div>
+          </div>
+
+          <!-- Perforated Divider Line -->
+          <div class="ticket-divider">
+            <div class="ticket-divider-line"></div>
+          </div>
+
+          <!-- Footer with QR Code & Countdown -->
+          <div class="ticket-footer">
+            <div class="qr-code-box">
+              <canvas id="qrCodeCanvas" class="qr-code-canvas" width="130" height="130"></canvas>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">สแกนเพื่อตรวจตั๋วและเช็คอิน</span>
+            </div>
+
+            <div class="countdown-box">
+              <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem;">
+                ⏳ เวลานับถอยหลังก่อนรถออก
+              </div>
+              <div class="countdown-digits" id="departureCountdownTimer">--:--:--</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem;" id="departureStatusNote">
+                กรุณามาถึงชานชาลาก่อนเวลารถออกอย่างน้อย 20 นาที
+              </div>
+            </div>
+
+            <div style="text-align: right; min-width: 140px;">
+              <div style="font-size: 0.75rem; color: var(--text-muted);">ยอดชำระเงินสุทธิ</div>
+              <div style="font-size: 1.5rem; font-weight: 900; color: var(--secondary);" id="ticketTotalFare">฿0</div>
+              <div style="font-size: 0.75rem; color: var(--success); font-weight: 600; margin-bottom: 0.5rem;" id="ticketPaymentStatus">PromptPay QR (ชำระแล้ว)</div>
+              <span class="status-badge" id="ticketCheckinBadge" style="font-size: 0.78rem;">⏳ รอเรียกคิว</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Helpful Guide -->
+      <div class="card" style="margin-top: 1.5rem; background: rgba(255,255,255,0.7);">
+        <h4 style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem;">ℹ️ คำแนะนำสำหรับผู้โดยสาร</h4>
+        <ul style="font-size: 0.85rem; color: var(--text-muted); padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem;">
+          <li>สามารถบันทึกภาพหน้าจอตั๋วนี้ หรือแสดง QR Code ต่อเจ้าหน้าที่ประจำชานชาลาเพื่อขึ้นรถ</li>
+          <li>เมื่อถึงเวลาเรียกรอบรถ นายท่าจะประกาศเรียกคิวผ่านระบบเสียงและหน้าจอแสดงผล</li>
+          <li>หากต้องการแก้ไขหรือสอบถามข้อมูล ติดต่อฝ่ายบริการลูกค้า โทร 02-123-4567</li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/ticket.js"></script>
+</body>
+</html>
